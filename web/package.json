@@ -14,7 +14,8 @@
     "next": "14.2.7",
     "playwright": "^1.55.0",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@types/node": "20.12.12",
