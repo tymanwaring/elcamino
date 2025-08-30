@@ -45,7 +45,7 @@ const {
   hostURL,
   MEMBER_NAME = 'Scott Manwaring',
 
-  EXECUTE_TIME,
+  EXECUTE_TIME = '7:00:00 PM',
   SPAM_BURST = '20',
   SPAM_SLEEP_MS = '5',
   MAX_SPAM_SECONDS = '120',
@@ -159,7 +159,7 @@ async function waitForRelease(page: Page) {
     dlog('waitForRelease: EXECUTE_TIME empty → skip immediately');
     return; 
   }
-  slog(`Waiting for release time: ${exec}`);
+  slog(`Server Execute Time (HH:MM:SS AM/PM): ${exec}`);
 
   const burst  = Number.parseInt(SPAM_BURST  ?? '20', 10);
   const sleep  = Number.parseInt(SPAM_SLEEP_MS ?? '5', 10);
