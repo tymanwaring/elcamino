@@ -93,6 +93,19 @@ function progressLog(message: string) {
   }
 }
 
+function nowLabel(): string {
+  try {
+    return new Date().toLocaleTimeString('en-US', {
+      hour12: true,
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+  } catch {
+    return new Date().toISOString().split('T')[1].split('Z')[0];
+  }
+}
+
 // Parse golfers from JSON array in env
 const GOLFER_LIST: string[] = (() => {
   try {
@@ -168,8 +181,7 @@ async function waitForRelease(page: Page) {
     return; 
   }
   slog(`Server Execute Time (HH:MM:SS AM/PM): ${exec}`);
-  let dotCount = 1;
-  progressLog('refreshing calender waiting for server time to match execution time' + '.'.repeat(dotCount));
+  console.log(`refreshing calender waiting for server time to match execution time... [${nowLabel()}]`);
 
   const burst  = Number.parseInt(SPAM_BURST  ?? '20', 10);
   const sleep  = Number.parseInt(SPAM_SLEEP_MS ?? '5', 10);
@@ -184,12 +196,11 @@ async function waitForRelease(page: Page) {
 
   const t0 = Date.now();
   let lastInfoLog = Date.now();
-  const infoIntervalMs = 2000;
+  const infoIntervalMs = 5000;
   while (Date.now() - t0 < maxMs) {
-    // periodic animated dots log
+    // periodic status log
     if (Date.now() - lastInfoLog >= infoIntervalMs) {
-      dotCount = (dotCount % 3) + 1;
-      progressLog('refreshing calender waiting for server time to match execution time' + '.'.repeat(dotCount));
+      console.log(`refreshing calender waiting for server time to match execution time... [${nowLabel()}]`);
       lastInfoLog = Date.now();
     }
     // If we navigated away and refresh vanished, keep looping (but don’t crash).
