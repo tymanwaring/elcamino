@@ -4,7 +4,7 @@ export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
 	const { username, password } = await req.json();
-	if (username !== 'admin' || password !== 'admin') {
+	if (username !== 'UnderPar' || password !== 'DadDad@2000') {
 		return new Response('Invalid credentials', { status: 401 });
 	}
 	const res = new Response('OK', { status: 200 });
