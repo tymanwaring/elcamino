@@ -18,6 +18,7 @@ const nextConfig = {
 				'./node_modules/queue-tick/**',
 				'./node_modules/pump/**',
 				'./node_modules/once/**',
+				'./node_modules/wrappy/**',
 				'./node_modules/b4a/**',
 				'./node_modules/dotenv/**',
 			],
