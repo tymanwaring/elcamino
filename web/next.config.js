@@ -16,6 +16,7 @@ const nextConfig = {
 				'./node_modules/fast-fifo/**',
 				'./node_modules/text-decoder/**',
 				'./node_modules/queue-tick/**',
+				'./node_modules/b4a/**',
 				'./node_modules/dotenv/**',
 			],
 		},
