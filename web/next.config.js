@@ -9,6 +9,7 @@ const nextConfig = {
 				'./scripts/**',
 				'./node_modules/@sparticuz/chromium/**',
 				'./node_modules/playwright-core/**',
+				'./node_modules/follow-redirects/**',
 				'./node_modules/dotenv/**',
 			],
 		},
