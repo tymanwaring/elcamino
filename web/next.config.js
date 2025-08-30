@@ -14,6 +14,8 @@ const nextConfig = {
 				'./node_modules/tar-stream/**',
 				'./node_modules/streamx/**',
 				'./node_modules/fast-fifo/**',
+				'./node_modules/text-decoder/**',
+				'./node_modules/queue-tick/**',
 				'./node_modules/dotenv/**',
 			],
 		},
