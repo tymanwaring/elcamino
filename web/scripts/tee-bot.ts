@@ -80,6 +80,11 @@ async function getChromiumForRuntime() {
   return (mod as any).chromium as typeof import('playwright-core')['chromium'];
 }
 
+function slog(message: string) {
+  // Single-line, prefix for easy parsing in logs
+  console.log(`[STEP] ${message}`);
+}
+
 // Parse golfers from JSON array in env
 const GOLFER_LIST: string[] = (() => {
   try {
@@ -120,19 +125,28 @@ function wireDebugLogs(page: Page) {
 
 // ---------- portal actions ----------
 async function login(page: Page) {
+  slog('Navigating to login');
   await page.goto(new URL('/login', hostURL!).toString(), { waitUntil: 'domcontentloaded' });
+  slog('Filling credentials');
   await page.locator('#lgUserName').fill(USER!);
   await page.locator('#lgPassword').fill(PASS!);
+  slog('Submitting login');
   await page.getByRole('button', { name: /login/i }).first().click();
+  await page.waitForLoadState('domcontentloaded').catch(() => {});
+  await page.waitForLoadState('networkidle').catch(() => {});
+  slog('Post-login settle done');
 }
 
 async function openTeeTimes(page: Page) {
+  slog('Locating Tee Times link');
   const link = page.getByRole('link', { name: /book a tee time/i }).first();
   await link.waitFor({ state: 'visible', timeout: 10_000 });
+  slog('Clicking Tee Times link');
   await link.click();
 }
 
 async function selectMember(page: Page) {
+  slog(`Selecting member: ${MEMBER_NAME}`);
   const member = page.getByRole('link', { name: new RegExp(`^${MEMBER_NAME}$`, 'i') }).first();
   await member.waitFor({ state: 'visible', timeout: 10_000 });
   await member.click();
@@ -145,6 +159,7 @@ async function waitForRelease(page: Page) {
     dlog('waitForRelease: EXECUTE_TIME empty → skip immediately');
     return; 
   }
+  slog(`Waiting for release time: ${exec}`);
 
   const burst  = Number.parseInt(SPAM_BURST  ?? '20', 10);
   const sleep  = Number.parseInt(SPAM_SLEEP_MS ?? '5', 10);
@@ -408,6 +423,7 @@ async function pickDayFallback(page: Page, daysOff: string[]) {
 
 async function pickLastValidDay(page: Page) {
   const daysOff = (DAYS_OFF || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  slog('Picking a valid day');
 
   await waitOverlayGoneSafe(page, OVERLAY_SELECTOR!, parseInt(FAST_OVERLAY_TIMEOUT_MS || '400', 10));
   if (await pickDayFast(page, daysOff)) return;
@@ -453,6 +469,7 @@ async function waitForTimesReady(page: Page) {
 
 // ---------- time picking (slim) ----------
 async function clickFirstTimeAfter(page: Page) {
+  slog('Scanning for tee times');
   await waitForTimesReady(page);
 
   const earliestStr = (EARLIEST_TIME || '').trim(); // blank = allow earliest
@@ -500,6 +517,7 @@ async function clickFirstTimeAfter(page: Page) {
   await target.loc.click({ timeout: 600 });
 
   dlog('Clicked time:', target.label);
+  slog(`Clicked tee time: ${target.label}`);
 }
 
 // ---------- golfers fill (final page) ----------
@@ -520,6 +538,7 @@ async function fillGolfers(page: Page, names: string[]) {
     console.log('No golfers to add');
     return;
   }
+  slog(`Adding golfers: ${names.join(', ')}`);
 
   // Scope everything to the ForeTees member picker block
   const container = page.locator('.ftMs-memberSelect, .ftMs-memberSearch').first();
@@ -572,6 +591,7 @@ async function fillGolfers(page: Page, names: string[]) {
  * Finalize the booking by clicking the "Submit Changes" button.
  */
 async function submitBooking(page: Page) {
+  slog('Submitting booking');
   const button = page.getByRole('link', { name: 'Submit Changes' }).first();
   await button.waitFor({ state: 'visible', timeout: 5000 });
   await button.click();
@@ -616,6 +636,7 @@ async function main() {
   if (IS_DRY_RUN) console.log('🛟 DRY_RUN=1 — running without any final booking confirmation.');
 
   try {
+    slog('Start flow');
     await login(page);
     await openTeeTimes(page);
     await selectMember(page);
