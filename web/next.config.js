@@ -17,6 +17,7 @@ const nextConfig = {
 				'./node_modules/text-decoder/**',
 				'./node_modules/queue-tick/**',
 				'./node_modules/pump/**',
+				'./node_modules/once/**',
 				'./node_modules/b4a/**',
 				'./node_modules/dotenv/**',
 			],
