@@ -13,6 +13,7 @@ const nextConfig = {
 				'./node_modules/tar-fs/**',
 				'./node_modules/tar-stream/**',
 				'./node_modules/streamx/**',
+				'./node_modules/fast-fifo/**',
 				'./node_modules/dotenv/**',
 			],
 		},
