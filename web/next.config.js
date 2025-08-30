@@ -11,10 +11,11 @@ const nextConfig = {
 				'./node_modules/playwright-core/**',
 				'./node_modules/follow-redirects/**',
 				'./node_modules/tar-fs/**',
+				'./node_modules/tar-stream/**',
 				'./node_modules/dotenv/**',
 			],
 		},
-		serverComponentsExternalPackages: ['ts-node', 'typescript', 'playwright-core', '@sparticuz/chromium', 'dotenv'],
+		serverComponentsExternalPackages: ['ts-node', 'typescript', 'playwright-core', '@sparticuz/chromium', 'dotenv', 'follow-redirects', 'tar-fs', 'tar-stream'],
 	},
 };
 
