@@ -45,7 +45,7 @@ const {
   hostURL,
   MEMBER_NAME = 'Scott Manwaring',
 
-  EXECUTE_TIME = '7:00:00 PM',
+  EXECUTE_TIME,
   SPAM_BURST = '20',
   SPAM_SLEEP_MS = '5',
   MAX_SPAM_SECONDS = '120',

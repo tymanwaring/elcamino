@@ -73,8 +73,8 @@ export default function HomePage() {
 					<input name="TARGET_YEAR" className="input" value={form.TARGET_YEAR} onChange={onInput} required />
 				</label>
 				<label className="flex flex-col gap-1">
-					<span className="text-sm text-gray-600">Execute Time (HH:MM:SS)</span>
-					<input name="EXECUTE_TIME" className="input" value={form.EXECUTE_TIME} onChange={onInput} placeholder="11:23:00" />
+					<span className="text-sm text-gray-600">Server Execute Time (HH:MM:SS AM/PM)</span>
+					<input name="EXECUTE_TIME" className="input" value={form.EXECUTE_TIME} onChange={onInput} placeholder="7:00:00 PM" />
 				</label>
 				<label className="flex flex-col gap-1">
 					<span className="text-sm text-gray-600">Earliest Time (e.g. 6:45 AM)</span>
