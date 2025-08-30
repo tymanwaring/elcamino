@@ -587,6 +587,10 @@ async function main() {
   const isProd = process.env.VERCEL || process.env.NODE_ENV === 'production';
   let browser: any;
   if (isProd) {
+    // Hint Sparticuz to extract required AWS Lambda libs on Vercel
+    if (!process.env.AWS_EXECUTION_ENV && !process.env.AWS_LAMBDA_JS_RUNTIME) {
+      process.env.AWS_EXECUTION_ENV = 'AWS_Lambda_nodejs20.x';
+    }
     const lambdaMod = await import('@sparticuz/chromium');
     const lambdaChromium: any = (lambdaMod as any).default ?? lambdaMod;
     const executablePath: string = await lambdaChromium.executablePath();
