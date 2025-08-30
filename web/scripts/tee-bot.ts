@@ -34,8 +34,10 @@
 // DEBUG=0        # set to 1 for slowMo+DevTools+tracing+verbose logs+keep-open
 
 import type { Page, BrowserContext, Locator, Frame } from 'playwright-core';
-import * as dotenv from 'dotenv';
-dotenv.config();
+// Load .env only in local/dev; Vercel provides envs without dotenv
+if (!process.env.VERCEL && process.env.NODE_ENV !== 'production') {
+  try { require('dotenv').config(); } catch {}
+}
 
 const {
   user: USER,
