@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "./scripts/dist",
+    "rootDir": "./",
+    "module": "commonjs",
+    "target": "ES2020",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "declaration": false
+  },
+  "include": [
+    "scripts/tee-bot.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next"
+  ]
+}
+
