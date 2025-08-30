@@ -19,6 +19,8 @@ const nextConfig = {
 				'./node_modules/pump/**',
 				'./node_modules/once/**',
 				'./node_modules/wrappy/**',
+				'./node_modules/end-of-stream/**',
+				'./node_modules/mkdirp-classic/**',
 				'./node_modules/b4a/**',
 				'./node_modules/dotenv/**',
 			],
