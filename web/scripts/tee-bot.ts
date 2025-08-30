@@ -587,12 +587,13 @@ async function main() {
   const isProd = process.env.VERCEL || process.env.NODE_ENV === 'production';
   let browser: any;
   if (isProd) {
-    const lambdaChromium = await import('@sparticuz/chromium');
+    const lambdaMod = await import('@sparticuz/chromium');
+    const lambdaChromium: any = (lambdaMod as any).default ?? lambdaMod;
+    const executablePath: string = await lambdaChromium.executablePath();
     browser = await chromium.launch({
-      args: (lambdaChromium as any).args,
-      executablePath: await (lambdaChromium as any).executablePath(),
-      headless: (lambdaChromium as any).headless,
-      // slowMo/devtools not available in serverless env
+      args: lambdaChromium.args,
+      executablePath,
+      headless: true,
     });
   } else {
     browser = await chromium.launch({
