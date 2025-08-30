@@ -85,6 +85,14 @@ function slog(message: string) {
   console.log(`[STEP] ${message}`);
 }
 
+function progressLog(message: string) {
+  try {
+    process.stdout.write('\r' + message);
+  } catch {
+    console.log(message);
+  }
+}
+
 // Parse golfers from JSON array in env
 const GOLFER_LIST: string[] = (() => {
   try {
@@ -161,7 +169,7 @@ async function waitForRelease(page: Page) {
   }
   slog(`Server Execute Time (HH:MM:SS AM/PM): ${exec}`);
   let dotCount = 1;
-  console.log('refreshing calender waiting for server time to match execution time' + '.'.repeat(dotCount));
+  progressLog('refreshing calender waiting for server time to match execution time' + '.'.repeat(dotCount));
 
   const burst  = Number.parseInt(SPAM_BURST  ?? '20', 10);
   const sleep  = Number.parseInt(SPAM_SLEEP_MS ?? '5', 10);
@@ -181,7 +189,7 @@ async function waitForRelease(page: Page) {
     // periodic animated dots log
     if (Date.now() - lastInfoLog >= infoIntervalMs) {
       dotCount = (dotCount % 3) + 1;
-      console.log('refreshing calender waiting for server time to match execution time' + '.'.repeat(dotCount));
+      progressLog('refreshing calender waiting for server time to match execution time' + '.'.repeat(dotCount));
       lastInfoLog = Date.now();
     }
     // If we navigated away and refresh vanished, keep looping (but don’t crash).
@@ -216,6 +224,8 @@ async function waitForRelease(page: Page) {
     }
   }
 
+  // finalize line break before throwing
+  try { process.stdout.write('\n'); } catch {}
   throw new Error(`waitForRelease: Timed out after ${maxMs/1000}s waiting for "${exec}"`);
 }
 
@@ -278,6 +288,20 @@ async function waitOverlayGoneSafe(page: Page, sel: string, timeoutMs: number) {
 
 
 // ---------- helpers ----------
+async function clickDatepickerNext(page: Page) {
+  // Simple, robust: click the last visible next anchor within a datepicker container
+  try {
+    // Prefer the triangle icon within the datepicker container
+    const icon = page.locator('a.ui-datepicker-next.ui-corner-all[title="Next"]:not(.ui-state-disabled)');
+    console.log('icon', await icon.count());
+    if (await icon.count()) {
+      // Click the icon (bubbles to anchor)
+      await icon.click({ timeout: 400 }).catch(() => {});
+      console.log('icon clicked');
+      return;
+    }
+  } catch {}
+}
 function weekdayNorm(h: string) {
   const k = h.trim().slice(0, 2).toLowerCase();
   return k === 'su' ? 'sunday'
@@ -651,7 +675,13 @@ async function main() {
     await openTeeTimes(page);
     await selectMember(page);
 
+    // If the calendar has a Next control, advance once before refresh loop
+    await clickDatepickerNext(page);
+
     await waitForRelease(page);      // no-op if EXECUTE_TIME empty
+    // Right after server time is reached, advance calendar again if available
+    slog('Release hit: advancing calendar if possible');
+    await clickDatepickerNext(page);
     await pickLastValidDay(page);    // fast + fallback, skips view-only & DAYS_OFF
     await clickFirstTimeAfter(page); // pick a time (navigates to golfer page)
     await fillGolfers(page, GOLFER_LIST); // add golfers by name
