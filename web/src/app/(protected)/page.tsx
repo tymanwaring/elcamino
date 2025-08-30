@@ -4,15 +4,15 @@ import { useState, useRef } from 'react';
 
 export default function HomePage() {
 	const [form, setForm] = useState({
-		user: '',
+		user: 'UnderPar',
 		password: '',
 		hostURL: 'https://www.elcaminoclub.com/',
 		MEMBER_NAME: 'Scott Manwaring',
 		TARGET_YEAR: new Date().getFullYear().toString(),
-		DRY_RUN: '1',
+		DRY_RUN: '0',
 		DEBUG: '0',
-		GOLFERS: '["Scott Manwaring"]',
-		EXECUTE_TIME: '',
+		GOLFERS: '["Scott Manwaring", "Leslie Manwaring"]',
+		EXECUTE_TIME: '7:00:00 PM',
 		EARLIEST_TIME: '',
 	});
 	const [running, setRunning] = useState(false);
