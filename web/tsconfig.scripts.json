@@ -3,7 +3,7 @@
   "compilerOptions": {
     "noEmit": false,
     "outDir": "./scripts/dist",
-    "rootDir": "./",
+    "rootDir": "./scripts",
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "ES2020",
