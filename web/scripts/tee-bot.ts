@@ -160,7 +160,8 @@ async function waitForRelease(page: Page) {
     return; 
   }
   slog(`Server Execute Time (HH:MM:SS AM/PM): ${exec}`);
-  console.log('refreshing calender waiting for server time to match execution time...');
+  let dotCount = 1;
+  console.log('refreshing calender waiting for server time to match execution time' + '.'.repeat(dotCount));
 
   const burst  = Number.parseInt(SPAM_BURST  ?? '20', 10);
   const sleep  = Number.parseInt(SPAM_SLEEP_MS ?? '5', 10);
@@ -175,10 +176,12 @@ async function waitForRelease(page: Page) {
 
   const t0 = Date.now();
   let lastInfoLog = Date.now();
+  const infoIntervalMs = 2000;
   while (Date.now() - t0 < maxMs) {
-    // periodic info log every 10 seconds
-    if (Date.now() - lastInfoLog >= 10_000) {
-      console.log('refreshing calender waiting for server time to match execution time...');
+    // periodic animated dots log
+    if (Date.now() - lastInfoLog >= infoIntervalMs) {
+      dotCount = (dotCount % 3) + 1;
+      console.log('refreshing calender waiting for server time to match execution time' + '.'.repeat(dotCount));
       lastInfoLog = Date.now();
     }
     // If we navigated away and refresh vanished, keep looping (but don’t crash).
