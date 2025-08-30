@@ -16,17 +16,21 @@ export default function HomePage() {
 		EARLIEST_TIME: '',
 	});
 	const [running, setRunning] = useState(false);
+	const [abortCtrl, setAbortCtrl] = useState<AbortController | null>(null);
 	const logRef = useRef<HTMLTextAreaElement>(null);
 
 	async function handleRun(e: React.FormEvent) {
 		e.preventDefault();
 		setRunning(true);
 		if (logRef.current) logRef.current.value = '';
+		const controller = new AbortController();
+		setAbortCtrl(controller);
 
 		const res = await fetch('/api/run-bot', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(form),
+			signal: controller.signal,
 		});
 
 		const reader = res.body?.getReader();
@@ -41,6 +45,19 @@ export default function HomePage() {
 			}
 		}
 		setRunning(false);
+		setAbortCtrl(null);
+	}
+
+	function handleKill() {
+		if (abortCtrl) {
+			abortCtrl.abort();
+			if (logRef.current) {
+				logRef.current.value += "\n[kill] Aborting execution...\n";
+				logRef.current.scrollTop = logRef.current.scrollHeight;
+			}
+			setRunning(false);
+			setAbortCtrl(null);
+		}
 	}
 
 	function onInput(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
@@ -81,11 +98,12 @@ export default function HomePage() {
 					<input name="EARLIEST_TIME" className="input" value={form.EARLIEST_TIME} onChange={onInput} placeholder="6:45 AM" />
 				</label>
 				<label className="flex flex-col gap-1 sm:col-span-2">
-					<span className="text-sm text-gray-600">Golfers (JSON array)</span>
+					<span className="text-sm text-gray-600">Golfers (JSON array up to 4 golfers)</span>
 					<textarea name="GOLFERS" rows={2} className="input" value={form.GOLFERS} onChange={onInput} />
 				</label>
 				<div className="sm:col-span-2 flex gap-3">
 					<button disabled={running} className="px-4 py-2 rounded bg-blue-600 text-white disabled:opacity-60">{running ? 'Running…' : 'Run Bot'}</button>
+					<button type="button" onClick={handleKill} disabled={!running} className="px-4 py-2 rounded bg-red-600 text-white disabled:opacity-60">Kill Execution</button>
 				</div>
 			</form>
 

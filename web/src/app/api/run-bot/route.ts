@@ -64,6 +64,10 @@ export async function POST(req: NextRequest) {
 				controller.close();
 			});
 		},
+		cancel() {
+			try { child.kill('SIGTERM'); } catch {}
+			try { child.kill('SIGKILL'); } catch {}
+		},
 	});
 
 	return new Response(stream, {
