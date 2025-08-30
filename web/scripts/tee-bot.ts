@@ -33,7 +33,7 @@
 // # One toggle for all debug behaviors:
 // DEBUG=0        # set to 1 for slowMo+DevTools+tracing+verbose logs+keep-open
 
-import { chromium, Page, BrowserContext, Locator, Frame } from 'playwright';
+import type { Page, BrowserContext, Locator, Frame } from 'playwright-core';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -66,6 +66,17 @@ const {
 const IS_DEBUG = DEBUG === '1' || DEBUG?.toLowerCase() === 'true';
 const DEBUG_SLOW_MS = 120; // auto slowMo when DEBUG=1
 const IS_DRY_RUN = DRY_RUN === '1' || DRY_RUN?.toLowerCase() === 'true';
+
+async function getChromiumForRuntime() {
+  const isProd = process.env.VERCEL || process.env.NODE_ENV === 'production';
+  if (isProd) {
+    const mod = await import('playwright-core');
+    return mod.chromium;
+  }
+  // Dev/local uses full playwright (with managed browsers)
+  const mod = await import('playwright');
+  return (mod as any).chromium as typeof import('playwright-core')['chromium'];
+}
 
 // Parse golfers from JSON array in env
 const GOLFER_LIST: string[] = (() => {
@@ -569,11 +580,25 @@ async function submitBooking(page: Page) {
 
 // ---------- main ----------
 async function main() {
-  const browser = await chromium.launch({
-    headless: false,
-    slowMo: IS_DEBUG ? DEBUG_SLOW_MS : 0,  // auto slowMo in DEBUG
-    devtools: IS_DEBUG,                    // auto DevTools in DEBUG
-  });
+  const chromium = await getChromiumForRuntime();
+
+  const isProd = process.env.VERCEL || process.env.NODE_ENV === 'production';
+  let browser: any;
+  if (isProd) {
+    const lambdaChromium = await import('@sparticuz/chromium');
+    browser = await chromium.launch({
+      args: (lambdaChromium as any).args,
+      executablePath: await (lambdaChromium as any).executablePath(),
+      headless: (lambdaChromium as any).headless,
+      // slowMo/devtools not available in serverless env
+    });
+  } else {
+    browser = await chromium.launch({
+      headless: false,
+      slowMo: IS_DEBUG ? DEBUG_SLOW_MS : 0,  // auto slowMo in DEBUG
+      devtools: IS_DEBUG,                    // auto DevTools in DEBUG
+    });
+  }
   const ctx = await browser.newContext();
   await startTracing(ctx); // auto tracing in DEBUG
   await ctx.clearCookies();

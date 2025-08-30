@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { spawn } from 'child_process';
+import { spawn, type ChildProcessWithoutNullStreams } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 	const runnerPath = path.join(webRoot, 'scripts', 'run-tee-bot.cjs');
 
 	// Build a sanitized env
-	const env: NodeJS.ProcessEnv = { ...process.env };
+	const env = { ...process.env } as NodeJS.ProcessEnv;
 	const setEnv = (k: string, v: unknown) => {
 		if (v === undefined || v === null) return;
 		env[k] = String(v);
@@ -46,7 +46,8 @@ export async function POST(req: NextRequest) {
 		cwd: webRoot,
 		env,
 		shell: false,
-	});
+		stdio: 'pipe',
+	}) as ChildProcessWithoutNullStreams;
 
 	const stream = new ReadableStream<Uint8Array>({
 		start(controller) {

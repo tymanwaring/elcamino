@@ -5,9 +5,9 @@ const nextConfig = {
 		swcMinify: true,
 		// Ensure our serverless function bundles the runner script and needed modules
 		outputFileTracingIncludes: {
-			'/api/run-bot': ['./scripts/**'],
+			'/api/run-bot': ['./scripts/**', './node_modules/@sparticuz/chromium/**'],
 		},
-		serverComponentsExternalPackages: ['ts-node', 'typescript', 'playwright', 'dotenv'],
+		serverComponentsExternalPackages: ['ts-node', 'typescript', 'playwright-core', '@sparticuz/chromium', 'dotenv'],
 	},
 };
 
