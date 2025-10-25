@@ -33,6 +33,7 @@
 // # One toggle for all debug behaviors:
 // DEBUG=0        # set to 1 for slowMo+DevTools+tracing+verbose logs+keep-open
 
+/// <reference types="node" />
 import type { Page, BrowserContext, Locator, Frame } from 'playwright-core';
 // Load .env only in local/dev; Vercel provides envs without dotenv
 if (!process.env.VERCEL && process.env.NODE_ENV !== 'production') {
@@ -54,7 +55,7 @@ const {
   FAST_OVERLAY_TIMEOUT_MS = '400',
 
   DAYS_OFF = '',
-  TARGET_YEAR,
+  TARGET_YEAR = new Date().getFullYear().toString(),
 
   EARLIEST_TIME = '',
   TIME_SUFFIX = '',
@@ -122,7 +123,6 @@ function dlog(...args: any[]) { if (IS_DEBUG) console.log('[DEBUG]', ...args); }
 
 // --- sanity checks ---
 if (!USER || !PASS || !hostURL) { console.error('Missing env: user, password, hostURL'); process.exit(1); }
-if (!TARGET_YEAR) { console.error('Missing env: TARGET_YEAR'); process.exit(1); }
 
 // ---------- tracing (auto in DEBUG) ----------
 async function startTracing(ctx: BrowserContext) {
@@ -131,8 +131,9 @@ async function startTracing(ctx: BrowserContext) {
 }
 async function stopTracing(ctx: BrowserContext) {
   if (!IS_DEBUG) return;
-  await ctx.tracing.stop({ path: 'trace.zip' });
-  console.log('[DEBUG] trace.zip saved');
+  const tracePath = (process.env.VERCEL || process.env.NODE_ENV === 'production') ? '/tmp/trace.zip' : 'trace.zip';
+  await ctx.tracing.stop({ path: tracePath });
+  console.log(`[DEBUG] ${tracePath} saved`);
 }
 
 // ---------- optional noisy logs in DEBUG ----------
@@ -185,7 +186,10 @@ async function waitForRelease(page: Page) {
 
   const burst  = Number.parseInt(SPAM_BURST  ?? '20', 10);
   const sleep  = Number.parseInt(SPAM_SLEEP_MS ?? '5', 10);
-  const maxMs  = Number.parseInt(MAX_SPAM_SECONDS ?? '120', 10) * 1000;
+  const maxSecEnv = Number.parseInt(MAX_SPAM_SECONDS ?? '120', 10);
+  const isProdLike = Boolean(process.env.VERCEL || process.env.NODE_ENV === 'production');
+  const maxSec = isProdLike ? Math.min(maxSecEnv, 45) : maxSecEnv;
+  const maxMs  = maxSec * 1000;
 
   const refresh = page.getByRole('link', { name: /refresh calendar/i }).first();
   try {
@@ -704,7 +708,7 @@ async function main() {
     }
   } finally {
     await stopTracing(ctx);
-    // if (!IS_DEBUG) await browser.close(); // Commented out to keep the browser open for debugging
+    if (!IS_DEBUG) await browser.close();
   }
 }
 
